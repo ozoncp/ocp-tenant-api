@@ -2,6 +2,9 @@ package utils
 
 // Разделение на слайса на батчи - исходный слайс конвертировать в слайс слайсов - чанки одинкового размера (кроме последнего)
 func Split(toSplit []int64, size int) [][]int64 {
+	if len(toSplit) == 0 {
+		return [][]int64{}
+	}
 	sizeOfBatches := len(toSplit) / size
 	if len(toSplit)%size != 0 {
 		sizeOfBatches += 1

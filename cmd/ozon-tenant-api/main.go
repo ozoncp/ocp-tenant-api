@@ -9,14 +9,18 @@ func main() {
 	fmt.Println("Hi! This cmd will be done by Krivolutskiy Andrey.")
 
 	// делим массив
-	a := make([]int64, 88)
+	// пустой
+	a := make([]int64, 0)
+	b := utils.Split(a, 10)
+	// и не пустой
+	a = make([]int64, 88)
 	for index, _ := range a {
 		a[index] = int64(index)
 		fmt.Printf(" %v", index)
 	}
 	fmt.Println()
 	fmt.Println()
-	b := utils.Split(a, 10)
+	b = utils.Split(a, 10)
 	for _, value := range b {
 		for _, value2 := range value {
 			fmt.Printf(" %v", value2)
@@ -24,11 +28,14 @@ func main() {
 		fmt.Println()
 	}
 	// выворачиваем мапу
+	// пустую
 	baseMap := map[int64]int64{}
+	swapResult := utils.SwapKeyValue(baseMap)
+	// и не пустую
 	baseMap[0] = 100
 	baseMap[1] = 200
 	baseMap[2] = 300
-	swapResult := utils.SwapKeyValue(baseMap)
+	swapResult = utils.SwapKeyValue(baseMap)
 	for key, value := range swapResult {
 		fmt.Printf("%v %v \n", key, value)
 	}
