@@ -15,7 +15,7 @@ func Split(toSplit []int64, size int) [][]int64 {
 		batches[index/size] = toSplit[index : index+size]
 		index += size
 	}
-	batches[sizeOfBatches-1] = toSplit[index : index+len(toSplit)%size]
+	batches[sizeOfBatches-1] = toSplit[index:]
 	return batches
 }
 
