@@ -2,6 +2,8 @@ package utils_lesson3
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -11,10 +13,10 @@ type Tenant struct {
 	Type uint8
 }
 
-func ToString(input Tenant) string {
-	return "Id: " + strconv.FormatUint(input.Id, 5) +
-		"; Name: " + input.Name +
-		"; Type: " + strconv.FormatUint(uint64(input.Type), 2)
+func (t Tenant) ToString() string {
+	return "Id: " + strconv.FormatUint(t.Id, 10) +
+		"; Name: " + t.Name +
+		"; Type: " + strconv.FormatUint(uint64(t.Type), 10)
 }
 
 func SplitToButch(tenant []Tenant, butchSize uint) [][]Tenant {
@@ -32,26 +34,52 @@ func SplitToButch(tenant []Tenant, butchSize uint) [][]Tenant {
 		batches[index/butchSize] = tenant[index : index+butchSize]
 		index += butchSize
 	}
-	batches[butchCount-1] = tenant[index : index+lenTenant%butchSize]
+	batches[butchCount-1] = tenant[index:]
 	return batches
 }
 
 func ToMapWithId(input []Tenant) (map[uint64]Tenant, error) {
 	result := make(map[uint64]Tenant, len(input))
-	myError := errors.New("OK")
 	for _, value := range input {
 		if mapElement, found := result[value.Id]; found {
 			if mapElement == value {
 				continue
 			} else {
-				myError = errors.New("Tenant::Id is not uniq")
-				break
+				return result, errors.New("Tenant::Id is not uniq")
 			}
 		} else {
 			result[value.Id] = value
 		}
 	}
-	return result, myError
+	return result, nil
 }
 
 //Используя defer и функтор реализовать открытие и закрытие файла в цикле
+func OpenFileInLoop() {
+	fmt.Println("Работа с файлом:")
+	fn := func(i int64) {
+		file, err := os.Create("file.txt")
+		check(err)
+		n, errWrite := file.WriteString("i = " + strconv.FormatInt(i, 10))
+		check(errWrite)
+		fmt.Printf("Записано %d bytes\n", n)
+		defer file.Close()
+	}
+	for i := int64(0); i < 5; i++ {
+		fn(i)
+	}
+	file, err := os.Open("file.txt")
+	check(err)
+	defer file.Close()
+	buffer := make([]byte, 20)
+	size, errRead := file.Read(buffer)
+	check(errRead)
+	fmt.Println("Данные в файле:")
+	fmt.Printf("%s\n", string(buffer[:size]))
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}

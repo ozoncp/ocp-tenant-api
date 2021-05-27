@@ -92,14 +92,87 @@ func lesson2RemoveElements() {
 
 func lesson3() {
 	fmt.Println("Результаты третьего урока")
-	createTenant()
+	lesson3createTenant()
+	utils_lesson3.OpenFileInLoop()
+	lesson3ToMapWithId()
+	lesson3SplitToButch()
 }
 
-func createTenant() {
+func lesson3createTenant() {
 	newTenant := utils_lesson3.Tenant{
 		Id:   1,
 		Name: "First",
 		Type: 1,
 	}
-	fmt.Println("Создан первый елемент типа Tenant: " + utils_lesson3.ToString(newTenant))
+	fmt.Println("Создан первый елемент типа Tenant: " + newTenant.ToString())
+}
+
+func lesson3GetTenantSlice() []utils_lesson3.Tenant {
+	data := make([]utils_lesson3.Tenant, 3)
+	newTenant1 := utils_lesson3.Tenant{
+		Id:   1,
+		Name: "First",
+		Type: 1,
+	}
+	data[0] = newTenant1
+	newTenant2 := utils_lesson3.Tenant{
+		Id:   2,
+		Name: "Second",
+		Type: 2,
+	}
+	data[1] = newTenant2
+	newTenant3 := utils_lesson3.Tenant{
+		Id:   3,
+		Name: "End",
+		Type: 3,
+	}
+	data[2] = newTenant3
+	return data
+}
+
+func lesson3ToMapWithId() {
+	fmt.Println("Тестируем ToMapWithId")
+	data := lesson3GetTenantSlice()
+
+	mapWithTenant, err := utils_lesson3.ToMapWithId(data)
+	check(err)
+	for key, value := range mapWithTenant {
+		fmt.Printf("key: %d; value: %s\n", key, value.ToString())
+	}
+
+	data[2].Id = 1
+	_, err2 := utils_lesson3.ToMapWithId(data)
+	if err2.Error() == "Tenant::Id is not uniq" {
+		fmt.Println("Тестирование ToMapWithId успешно")
+	} else {
+		fmt.Println("Тестирование ToMapWithId провалилось")
+	}
+}
+
+func lesson3SplitToButch() {
+	fmt.Println("Тестируем SplitToButch")
+	data := lesson3GetTenantSlice()
+	fmt.Println("Исходный slice:")
+	for index, value := range data {
+		fmt.Printf("index: %d; value: %s\n", index, value.ToString())
+	}
+	fmt.Println("Разделить на кусочки по одному:")
+	for index, value := range utils_lesson3.SplitToButch(data, 1) {
+		for index2, value2 := range value {
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+		}
+	}
+	fmt.Println("Разделить на кусочки по двое:")
+	for index, value := range utils_lesson3.SplitToButch(data, 2) {
+		for index2, value2 := range value {
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+		}
+	}
+	fmt.Println("Тестирование ToMapWithId успешно")
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
