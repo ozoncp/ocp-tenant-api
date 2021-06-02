@@ -33,7 +33,7 @@ func lesson2TestSplitEmptyMass() {
 func lesson2TestSplitFullMass() {
 	a := make([]int64, 88)
 	fmt.Println("Исходный массив:")
-	for index, _ := range a {
+	for index := range a {
 		a[index] = int64(index)
 		fmt.Printf(" %v", index)
 	}
@@ -71,7 +71,7 @@ func lesson2SwapKeyValueWithValue() {
 func lesson2RemoveElements() {
 	a := make([]int64, 28)
 	fmt.Println("Исходный массив:")
-	for index, _ := range a {
+	for index := range a {
 		a[index] = int64(index)
 		fmt.Printf(" %v", index)
 	}
