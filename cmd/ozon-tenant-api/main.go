@@ -104,7 +104,7 @@ func lesson3createTenant() {
 		Name: "First",
 		Type: 1,
 	}
-	fmt.Println("Создан первый елемент типа Tenant: " + newTenant.ToString())
+	fmt.Println("Создан первый елемент типа Tenant: " + newTenant.String())
 }
 
 func lesson3GetTenantSlice() []tenant.Tenant {
@@ -137,7 +137,7 @@ func lesson3ToMapWithId() {
 	mapWithTenant, err := tenant.ToMapWithId(data)
 	check(err)
 	for key, value := range mapWithTenant {
-		fmt.Printf("key: %d; value: %s\n", key, value.ToString())
+		fmt.Printf("key: %d; value: %s\n", key, value.String())
 	}
 
 	data[2].Id = 1
@@ -154,18 +154,18 @@ func lesson3SplitToButch() {
 	data := lesson3GetTenantSlice()
 	fmt.Println("Исходный slice:")
 	for index, value := range data {
-		fmt.Printf("index: %d; value: %s\n", index, value.ToString())
+		fmt.Printf("index: %d; value: %s\n", index, value.String())
 	}
 	fmt.Println("Разделить на кусочки по одному:")
 	for index, value := range tenant.SplitToButch(data, 1) {
 		for index2, value2 := range value {
-			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.String())
 		}
 	}
 	fmt.Println("Разделить на кусочки по двое:")
 	for index, value := range tenant.SplitToButch(data, 2) {
 		for index2, value2 := range value {
-			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.String())
 		}
 	}
 	fmt.Println("Тестирование ToMapWithId успешно")
