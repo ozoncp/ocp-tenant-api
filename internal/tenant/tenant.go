@@ -1,4 +1,4 @@
-package utils_lesson3
+package tenant
 
 import (
 	"errors"
