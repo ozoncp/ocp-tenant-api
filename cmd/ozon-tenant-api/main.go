@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 	"github.com/ozoncp/ocp-tenant-api/internal/utils-lesson2"
-	"github.com/ozoncp/ocp-tenant-api/internal/utils-lesson3"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func lesson2TestSplitEmptyMass() {
 func lesson2TestSplitFullMass() {
 	a := make([]int64, 88)
 	fmt.Println("Исходный массив:")
-	for index, _ := range a {
+	for index := range a {
 		a[index] = int64(index)
 		fmt.Printf(" %v", index)
 	}
@@ -71,7 +71,7 @@ func lesson2SwapKeyValueWithValue() {
 func lesson2RemoveElements() {
 	a := make([]int64, 28)
 	fmt.Println("Исходный массив:")
-	for index, _ := range a {
+	for index := range a {
 		a[index] = int64(index)
 		fmt.Printf(" %v", index)
 	}
@@ -93,35 +93,35 @@ func lesson2RemoveElements() {
 func lesson3() {
 	fmt.Println("Результаты третьего урока")
 	lesson3createTenant()
-	utils_lesson3.OpenFileInLoop()
+	tenant.OpenFileInLoop()
 	lesson3ToMapWithId()
 	lesson3SplitToButch()
 }
 
 func lesson3createTenant() {
-	newTenant := utils_lesson3.Tenant{
+	newTenant := tenant.Tenant{
 		Id:   1,
 		Name: "First",
 		Type: 1,
 	}
-	fmt.Println("Создан первый елемент типа Tenant: " + newTenant.ToString())
+	fmt.Println("Создан первый елемент типа Tenant: " + newTenant.String())
 }
 
-func lesson3GetTenantSlice() []utils_lesson3.Tenant {
-	data := make([]utils_lesson3.Tenant, 3)
-	newTenant1 := utils_lesson3.Tenant{
+func lesson3GetTenantSlice() []tenant.Tenant {
+	data := make([]tenant.Tenant, 3)
+	newTenant1 := tenant.Tenant{
 		Id:   1,
 		Name: "First",
 		Type: 1,
 	}
 	data[0] = newTenant1
-	newTenant2 := utils_lesson3.Tenant{
+	newTenant2 := tenant.Tenant{
 		Id:   2,
 		Name: "Second",
 		Type: 2,
 	}
 	data[1] = newTenant2
-	newTenant3 := utils_lesson3.Tenant{
+	newTenant3 := tenant.Tenant{
 		Id:   3,
 		Name: "End",
 		Type: 3,
@@ -134,14 +134,14 @@ func lesson3ToMapWithId() {
 	fmt.Println("Тестируем ToMapWithId")
 	data := lesson3GetTenantSlice()
 
-	mapWithTenant, err := utils_lesson3.ToMapWithId(data)
+	mapWithTenant, err := tenant.ToMapWithId(data)
 	check(err)
 	for key, value := range mapWithTenant {
-		fmt.Printf("key: %d; value: %s\n", key, value.ToString())
+		fmt.Printf("key: %d; value: %s\n", key, value.String())
 	}
 
 	data[2].Id = 1
-	_, err2 := utils_lesson3.ToMapWithId(data)
+	_, err2 := tenant.ToMapWithId(data)
 	if err2.Error() == "Tenant::Id is not uniq" {
 		fmt.Println("Тестирование ToMapWithId успешно")
 	} else {
@@ -154,18 +154,18 @@ func lesson3SplitToButch() {
 	data := lesson3GetTenantSlice()
 	fmt.Println("Исходный slice:")
 	for index, value := range data {
-		fmt.Printf("index: %d; value: %s\n", index, value.ToString())
+		fmt.Printf("index: %d; value: %s\n", index, value.String())
 	}
 	fmt.Println("Разделить на кусочки по одному:")
-	for index, value := range utils_lesson3.SplitToButch(data, 1) {
+	for index, value := range tenant.SplitToButch(data, 1) {
 		for index2, value2 := range value {
-			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.String())
 		}
 	}
 	fmt.Println("Разделить на кусочки по двое:")
-	for index, value := range utils_lesson3.SplitToButch(data, 2) {
+	for index, value := range tenant.SplitToButch(data, 2) {
 		for index2, value2 := range value {
-			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.ToString())
+			fmt.Printf("index1: %d; index2: %d; value: %s\n", index, index2, value2.String())
 		}
 	}
 	fmt.Println("Тестирование ToMapWithId успешно")

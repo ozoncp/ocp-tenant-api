@@ -9,7 +9,7 @@ func Split(toSplit []int64, size int) [][]int64 {
 	if len(toSplit)%size != 0 {
 		sizeOfBatches += 1
 	}
-	batches := make([][]int64, sizeOfBatches, sizeOfBatches)
+	batches := make([][]int64, sizeOfBatches)
 	index := 0
 	for index+size < len(toSplit) {
 		batches[index/size] = toSplit[index : index+size]

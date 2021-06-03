@@ -1,4 +1,4 @@
-package utils_lesson3
+package tenant
 
 import (
 	"errors"
@@ -6,18 +6,6 @@ import (
 	"os"
 	"strconv"
 )
-
-type Tenant struct {
-	Id   uint64
-	Name string
-	Type uint8
-}
-
-func (t Tenant) ToString() string {
-	return "Id: " + strconv.FormatUint(t.Id, 10) +
-		"; Name: " + t.Name +
-		"; Type: " + strconv.FormatUint(uint64(t.Type), 10)
-}
 
 func SplitToButch(tenant []Tenant, butchSize uint) [][]Tenant {
 	if len(tenant) == 0 {
@@ -54,7 +42,6 @@ func ToMapWithId(input []Tenant) (map[uint64]Tenant, error) {
 	return result, nil
 }
 
-//Используя defer и функтор реализовать открытие и закрытие файла в цикле
 func OpenFileInLoop() {
 	fmt.Println("Работа с файлом:")
 	fn := func(i int64) {
