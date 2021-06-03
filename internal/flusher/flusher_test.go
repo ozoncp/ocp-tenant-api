@@ -62,4 +62,15 @@ var _ = Describe("Flusher", func() {
 			Expect(result).Should(BeEquivalentTo(tenants))
 		})
 	})
+
+	Context("repo runs from time to time", func() {
+		BeforeEach(func() {
+			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(nil).Times(1)
+			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(mockErr)
+		})
+
+		It("repo AddTenants Ok and Fail", func() {
+			Expect(result).Should(BeEquivalentTo(tenants[sizeOfPkg:]))
+		})
+	})
 })
