@@ -29,29 +29,33 @@ type saver struct {
 	ticker     *time.Ticker
 }
 
-func (s saver) Work() {
+func (s saver) work() {
 	for {
 		select {
 		case entity := <-s.toSave:
-			if len(s.buffer) == cap(s.buffer) {
-				switch s.removeRule {
-				case All:
-					s.buffer = s.buffer[:0]
-				case Last:
-					s.buffer = s.buffer[:len(s.buffer)-1]
-				}
-			}
-			s.buffer = append(s.buffer, entity)
-		case <-s.toClose:
-			s.Flush()
-			break
+			s.appendToSave(entity)
 		case <-s.ticker.C:
-			s.Flush()
+			s.flush()
+		case <-s.toClose:
+			s.flush()
+			break
 		}
 	}
 }
 
-func (s saver) Flush() {
+func (s saver) appendToSave(entity tenant.Tenant) {
+	if len(s.buffer) == cap(s.buffer) {
+		switch s.removeRule {
+		case All:
+			s.buffer = s.buffer[:0]
+		case Last:
+			s.buffer = s.buffer[:len(s.buffer)-1]
+		}
+	}
+	s.buffer = append(s.buffer, entity)
+}
+
+func (s saver) flush() {
 	if len(s.buffer) > 0 {
 		flushResult := s.flusher.Flush(s.buffer)
 		if flushResult == nil {
@@ -87,6 +91,6 @@ func NewSaver(
 		removeRule: removeRule,
 	}
 	result.ticker = time.NewTicker(period)
-	go result.Work()
+	go result.work()
 	return result
 }
