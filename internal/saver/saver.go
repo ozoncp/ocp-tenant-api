@@ -16,6 +16,7 @@ type RemoveRule uint8
 const (
 	All RemoveRule = iota
 	Last
+	First
 )
 
 type saver struct {
@@ -25,11 +26,13 @@ type saver struct {
 	buffer     []tenant.Tenant
 	toSave     chan tenant.Tenant
 	toClose    chan struct{}
+	closeEnded chan struct{}
 	close      bool
 	ticker     *time.Ticker
 }
 
 func (s saver) work() {
+	endWork := false
 	for {
 		select {
 		case entity := <-s.toSave:
@@ -38,9 +41,14 @@ func (s saver) work() {
 			s.flush()
 		case <-s.toClose:
 			s.flush()
+			endWork = true
+			break
+		}
+		if endWork {
 			break
 		}
 	}
+	s.closeEnded <- struct{}{}
 }
 
 func (s saver) appendToSave(entity tenant.Tenant) {
@@ -50,6 +58,8 @@ func (s saver) appendToSave(entity tenant.Tenant) {
 			s.buffer = s.buffer[:0]
 		case Last:
 			s.buffer = s.buffer[:len(s.buffer)-1]
+		case First:
+			s.buffer = s.buffer[:copy(s.buffer, s.buffer[1:])]
 		}
 	}
 	s.buffer = append(s.buffer, entity)
@@ -75,8 +85,9 @@ func (s saver) Save(entity tenant.Tenant) {
 
 func (s saver) Close() {
 	s.ticker.Stop()
-	s.toClose <- struct{}{}
 	s.close = true
+	s.toClose <- struct{}{}
+	<-s.closeEnded
 }
 
 // NewSaver возвращает Saver с поддержкой переодического сохранения
@@ -85,6 +96,9 @@ func NewSaver(
 	flusher flusher.Flusher,
 	removeRule RemoveRule,
 	period time.Duration) Saver {
+	if capacity == 0 || flusher == nil {
+		panic("Wrong saver settings.")
+	}
 	result := saver{
 		capacity:   capacity,
 		flusher:    flusher,
