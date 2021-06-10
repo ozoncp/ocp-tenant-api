@@ -14,7 +14,7 @@ PHONY: .generate
 				--validate_out lang=go:pkg/ocp-tenant-api \
 				--swagger_out=allow_merge=true,merge_file_name=api:swagger \
 				api/ocp-tenant-api/ocp-tenant-api.proto
-		mv pkg/ocp-tenant-api/gihtub.com/ozoncp/ocp-tenant-api/pkg/ocp-tenant-api/* pkg/ocp-tenant-api/
+		mv pkg/ocp-tenant-api/github.com/ozoncp/ocp-tenant-api/pkg/ocp-tenant-api/* pkg/ocp-tenant-api/
 		rm -rf pkg/ocp-tenant-api/gihtub.com
 		mkdir -p cmd/ocp-tenant-api
 
