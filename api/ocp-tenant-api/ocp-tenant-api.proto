@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+option go_package = "github.com/ozoncp/ocp-tenant-api/pkg/ocp-tenant-api;ocp_tenant_api";
+
+package ocp.tenant.api;
+
+message Tenant {
+    uint64 Id = 1;
+    string Name = 2;
+    uint32 Type = 3;
+}
+
+service OcpTenantApi {
+    rpc CreateTenantV1(CreateTenantV1Request) returns (CreateTenantV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tenant"
+        };
+    }
+
+    rpc DescribeTenantV1(DescribeTenantV1Request) returns (DescribeTenantV1Response) {
+        option (google.api.http) = {
+            get: "/v1/tenant/{tenant_id}"
+        };
+    }
+
+    rpc ListTenantsV1(ListTenantsV1Request) returns (ListTenantsV1Response) {
+        option (google.api.http) = {
+            get: "/v1/tenant"
+        };
+    }
+
+    rpc RemoveTenantV1(RemoveTenantV1Request) returns (RemoveTenantV1Response) {
+        option (google.api.http) = {
+            delete: "/v1/tenant/{tenant_id}"
+        };
+    }
+}
+
+message CreateTenantV1Request {
+    Tenant tenant = 1;
+}
+
+message CreateTenantV1Response {
+    uint64 tenant_id = 1;
+}
+
+message DescribeTenantV1Request {
+    uint64 tenant_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message DescribeTenantV1Response {
+    Tenant tenant = 1;
+}
+
+message ListTenantsV1Request {
+    uint64 limit = 1;
+    uint64 offset = 2;
+}
+
+message ListTenantsV1Response {
+    repeated Tenant tenants = 1;
+}
+
+message RemoveTenantV1Request {
+    uint64 tenant_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message RemoveTenantV1Response {
+    bool found = 1;
+}
