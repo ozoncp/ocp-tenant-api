@@ -11,7 +11,7 @@ require (
 	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/onsi/gomega v1.13.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
-	google.golang.org/genproto v0.0.0-20210610141715-e7a9b787a5a4 // indirect
+	google.golang.org/genproto v0.0.0-20210614182748-5b3b54cad159 // indirect
 	google.golang.org/grpc v1.38.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
