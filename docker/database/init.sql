@@ -9,6 +9,4 @@ CREATE TABLE tenant
     type INT          NOT NULL
 );
 
-create index k_tenant_type_name on tenant2 (type, name);
-
-ALTER TABLE tenant OWNER TO ocp_tenant_api;
+CREATE INDEX k_tenant_type_name ON tenant (type, name);
