@@ -1,11 +1,9 @@
 services:
   tenant-db:
-    image: postgres
+    build: ./docker/database
     ports:
       - "5432:5432"
     restart: always
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -14,7 +12,7 @@ services:
   tenant-api:
     build: .
     ports:
-      - "80:80"
+      - "7000:7000"
     depends_on:
       - tenant-db
 
@@ -24,8 +22,8 @@ services:
       - "8080:8080"
     restart: always
     volumes:
-      - ./swagger/api.swagger.json:/api.swagger.json
+      - ./swagger:/docs
     environment:
-      SWAGGER_JSON: /api.swagger.json
+      SWAGGER_JSON: /docs/api.swagger.json
     depends_on:
       - tenant-api
