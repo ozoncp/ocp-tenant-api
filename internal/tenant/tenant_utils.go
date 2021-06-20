@@ -7,17 +7,17 @@ import (
 	"strconv"
 )
 
-func SplitToButch(tenant []Tenant, butchSize uint) [][]Tenant {
+func SplitToButch(tenant []Tenant, butchSize uint64) [][]Tenant {
 	if len(tenant) == 0 {
 		return [][]Tenant{}
 	}
-	lenTenant := uint(len(tenant))
+	lenTenant := uint64(len(tenant))
 	butchCount := lenTenant / butchSize
 	if lenTenant%butchSize != 0 {
 		butchCount += 1
 	}
 	batches := make([][]Tenant, butchCount)
-	index := uint(0)
+	index := uint64(0)
 	for index+butchSize < lenTenant {
 		batches[index/butchSize] = tenant[index : index+butchSize]
 		index += butchSize

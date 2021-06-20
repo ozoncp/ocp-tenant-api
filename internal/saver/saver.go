@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"context"
 	"github.com/ozoncp/ocp-tenant-api/internal/flusher"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 	"time"
@@ -67,7 +68,7 @@ func (s saver) appendToSave(entity tenant.Tenant) {
 
 func (s saver) flush() {
 	if len(s.buffer) > 0 {
-		flushResult := s.flusher.Flush(nil, s.buffer)
+		flushResult := s.flusher.Flush(context.TODO(), s.buffer)
 		if flushResult == nil {
 			s.buffer = s.buffer[:0]
 		} else {
