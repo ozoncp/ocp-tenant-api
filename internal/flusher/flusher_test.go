@@ -35,7 +35,7 @@ var _ = Describe("Flusher", func() {
 
 	JustBeforeEach(func() {
 		f = flusher.New(mockStorage, sizeOfPkg)
-		result = f.Flush(tenants)
+		result = f.Flush(nil, tenants)
 	})
 
 	AfterEach(func() {
@@ -44,7 +44,7 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo is ok", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(nil).MinTimes(2)
+			mockStorage.EXPECT().AddTenants(nil, gomock.Any()).Return(nil).MinTimes(2)
 		})
 
 		It("repo AddTenants OK", func() {
@@ -54,7 +54,7 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo is`not ok", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(mockErr)
+			mockStorage.EXPECT().AddTenants(nil, gomock.Any()).Return(mockErr)
 		})
 
 		It("repo AddTenants Fail", func() {
@@ -65,8 +65,8 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo runs from time to time", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(nil).Times(1)
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(mockErr)
+			mockStorage.EXPECT().AddTenants(nil, gomock.Any()).Return(nil).Times(1)
+			mockStorage.EXPECT().AddTenants(nil, gomock.Any()).Return(mockErr)
 		})
 
 		It("repo AddTenants Ok and Fail", func() {

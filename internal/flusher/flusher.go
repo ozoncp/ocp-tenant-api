@@ -1,12 +1,13 @@
 package flusher
 
 import (
+	"context"
 	"github.com/ozoncp/ocp-tenant-api/internal/repo"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 )
 
 type Flusher interface {
-	Flush(tenants []tenant.Tenant) []tenant.Tenant
+	Flush(ctx context.Context, tenants []tenant.Tenant) []tenant.Tenant
 }
 
 type flusher struct {
@@ -14,10 +15,10 @@ type flusher struct {
 	maxPkgSize uint
 }
 
-func (f *flusher) Flush(tenants []tenant.Tenant) []tenant.Tenant {
+func (f *flusher) Flush(ctx context.Context, tenants []tenant.Tenant) []tenant.Tenant {
 	toFlush := tenant.SplitToButch(tenants, f.maxPkgSize)
 	for index, pkg := range toFlush {
-		err := f.storage.AddTenants(pkg)
+		_, err := f.storage.AddTenants(ctx, pkg)
 		if err != nil {
 			// возвращаем не загруженные данные
 			return tenants[index*int(f.maxPkgSize):]

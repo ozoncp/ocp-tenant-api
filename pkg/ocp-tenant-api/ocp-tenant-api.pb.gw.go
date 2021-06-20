@@ -283,7 +283,7 @@ func RegisterOcpTenantApiHandlerServer(ctx context.Context, mux *runtime.ServeMu
 
 	})
 
-	mux.Handle("POST", pattern_OcpTenantApi_UpdateTenantV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_OcpTenantApi_UpdateTenantV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -433,7 +433,7 @@ func RegisterOcpTenantApiHandlerClient(ctx context.Context, mux *runtime.ServeMu
 
 	})
 
-	mux.Handle("POST", pattern_OcpTenantApi_UpdateTenantV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_OcpTenantApi_UpdateTenantV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -497,13 +497,13 @@ func RegisterOcpTenantApiHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_OcpTenantApi_CreateTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "tenant", "new"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_OcpTenantApi_CreateTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "tenant"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_OcpTenantApi_DescribeTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "tenant", "tenant_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_OcpTenantApi_UpdateTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "tenant", "update"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_OcpTenantApi_UpdateTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "tenant"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_OcpTenantApi_RemoveTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "tenant", "remove"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_OcpTenantApi_RemoveTenantV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "tenant"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_OcpTenantApi_ListTenantsV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "tenants"}, "", runtime.AssumeColonVerbOpt(true)))
 )

@@ -8,7 +8,8 @@ import (
 )
 
 type Repo interface {
-	AddTenant(ctx context.Context, task tenant.Tenant) (uint64, error)
+	AddTenant(ctx context.Context, tenant tenant.Tenant) (uint64, error)
+	AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error)
 	UpdateTenant(ctx context.Context, tenants *tenant.Tenant) (bool, error)
 	ListTenants(ctx context.Context, limit, offset uint64) ([]tenant.Tenant, error)
 	DescribeTenant(ctx context.Context, taskId uint64) (*tenant.Tenant, error)
@@ -45,6 +46,32 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 	}
 
 	return tenant.Id, nil
+}
+
+func (r *tenantRepo) AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error) {
+	var numberOfTenantsCreated uint64 = 0
+	chunks := tenant.SplitToButch(tenants, 5)
+	for _, chunk := range chunks {
+
+		query := sq.Insert(tableName).
+			Columns("Name", "Type").
+			RunWith(r.db).
+			PlaceholderFormat(sq.Dollar)
+		for _, chunkTenant := range chunk {
+			query = query.Values(chunkTenant.Name, chunkTenant.Type)
+		}
+
+		result, err := query.ExecContext(ctx)
+		if err != nil {
+			return numberOfTenantsCreated, err
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return numberOfTenantsCreated, err
+		}
+		numberOfTenantsCreated = numberOfTenantsCreated + uint64(rowsAffected)
+	}
+	return uint64(numberOfTenantsCreated), nil
 }
 
 func (r *tenantRepo) UpdateTenant(ctx context.Context, toUpdate *tenant.Tenant) (bool, error) {
