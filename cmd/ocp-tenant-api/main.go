@@ -69,6 +69,7 @@ func runGrpc() error {
 	listen, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
+		return err
 	}
 
 	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
@@ -94,6 +95,7 @@ func runGrpc() error {
 	fmt.Printf("Grps server listening on %s\n", *grpcEndpoint)
 	if err := s.Serve(listen); err != nil {
 		log.Fatalf("failed to serve: %v", err)
+		return err
 	}
 	return nil
 }
@@ -101,9 +103,13 @@ func runGrpc() error {
 func main() {
 	flag.Parse()
 
-	go runGrpc()
+	if err := runGrpc(); err != nil {
+		log.Fatal(err)
+		return
+	}
 
 	if err := runHttp(); err != nil {
 		log.Fatal(err)
+		return
 	}
 }
