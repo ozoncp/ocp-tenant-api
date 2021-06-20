@@ -67,7 +67,7 @@ func (s saver) appendToSave(entity tenant.Tenant) {
 
 func (s saver) flush() {
 	if len(s.buffer) > 0 {
-		flushResult := s.flusher.Flush(s.buffer)
+		flushResult := s.flusher.Flush(nil, s.buffer)
 		if flushResult == nil {
 			s.buffer = s.buffer[:0]
 		} else {
