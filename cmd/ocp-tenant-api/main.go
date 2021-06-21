@@ -5,7 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/ozoncp/ocp-tenant-api/internal/metrics"
+	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/repo"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net"
 	"net/http"
@@ -66,6 +69,7 @@ func runHttp() error {
 }
 
 func runGrpc() error {
+	ctx := context.Background()
 	listen, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -86,8 +90,14 @@ func runGrpc() error {
 		log.Fatalf("failed to ping to database")
 		return err
 	}
+	addresses := []string{"127.0.0.1:9094"}
+	dataProducer, err := producer.New(ctx, addresses, "tenant", 512)
 
-	repo := repo.New(*db, 5)
+	if err != nil {
+		log.Println("failed to create a producer")
+		return err
+	}
+	repo := repo.New(*db, 5, dataProducer)
 
 	s := grpc.NewServer()
 	desc.RegisterOcpTenantApiServer(s, api.NewOcpTenantApi(&repo))
@@ -100,9 +110,19 @@ func runGrpc() error {
 	return nil
 }
 
+func runMetrics() {
+	metrics.RegisterMetrics()
+	http.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	flag.Parse()
-
+	runMetrics()
 	if err := runGrpc(); err != nil {
 		log.Fatal(err)
 		return

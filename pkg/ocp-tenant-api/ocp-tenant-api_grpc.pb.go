@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type OcpTenantApiClient interface {
 	// Adds a tenant to the database, giving it a specific Id.
 	CreateTenantV1(ctx context.Context, in *CreateTenantV1Request, opts ...grpc.CallOption) (*CreateTenantV1Response, error)
+	// Adds a tenants to the database, giving it a specific Id.
+	MultiCreateTenantV1(ctx context.Context, in *MultiCreateTenantV1Request, opts ...grpc.CallOption) (*MultiCreateTenantV1Response, error)
 	// Provides information about the specified tenant.
 	DescribeTenantV1(ctx context.Context, in *DescribeTenantV1Request, opts ...grpc.CallOption) (*DescribeTenantV1Response, error)
 	// Refreshes the data for the specified tenant.
@@ -41,6 +43,15 @@ func NewOcpTenantApiClient(cc grpc.ClientConnInterface) OcpTenantApiClient {
 func (c *ocpTenantApiClient) CreateTenantV1(ctx context.Context, in *CreateTenantV1Request, opts ...grpc.CallOption) (*CreateTenantV1Response, error) {
 	out := new(CreateTenantV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.tenant.api.OcpTenantApi/CreateTenantV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpTenantApiClient) MultiCreateTenantV1(ctx context.Context, in *MultiCreateTenantV1Request, opts ...grpc.CallOption) (*MultiCreateTenantV1Response, error) {
+	out := new(MultiCreateTenantV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.tenant.api.OcpTenantApi/MultiCreateTenantV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +100,8 @@ func (c *ocpTenantApiClient) ListTenantsV1(ctx context.Context, in *ListTenantsV
 type OcpTenantApiServer interface {
 	// Adds a tenant to the database, giving it a specific Id.
 	CreateTenantV1(context.Context, *CreateTenantV1Request) (*CreateTenantV1Response, error)
+	// Adds a tenants to the database, giving it a specific Id.
+	MultiCreateTenantV1(context.Context, *MultiCreateTenantV1Request) (*MultiCreateTenantV1Response, error)
 	// Provides information about the specified tenant.
 	DescribeTenantV1(context.Context, *DescribeTenantV1Request) (*DescribeTenantV1Response, error)
 	// Refreshes the data for the specified tenant.
@@ -106,6 +119,9 @@ type UnimplementedOcpTenantApiServer struct {
 
 func (UnimplementedOcpTenantApiServer) CreateTenantV1(context.Context, *CreateTenantV1Request) (*CreateTenantV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTenantV1 not implemented")
+}
+func (UnimplementedOcpTenantApiServer) MultiCreateTenantV1(context.Context, *MultiCreateTenantV1Request) (*MultiCreateTenantV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateTenantV1 not implemented")
 }
 func (UnimplementedOcpTenantApiServer) DescribeTenantV1(context.Context, *DescribeTenantV1Request) (*DescribeTenantV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeTenantV1 not implemented")
@@ -146,6 +162,24 @@ func _OcpTenantApi_CreateTenantV1_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpTenantApiServer).CreateTenantV1(ctx, req.(*CreateTenantV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpTenantApi_MultiCreateTenantV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateTenantV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpTenantApiServer).MultiCreateTenantV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.tenant.api.OcpTenantApi/MultiCreateTenantV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpTenantApiServer).MultiCreateTenantV1(ctx, req.(*MultiCreateTenantV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +266,10 @@ var OcpTenantApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTenantV1",
 			Handler:    _OcpTenantApi_CreateTenantV1_Handler,
+		},
+		{
+			MethodName: "MultiCreateTenantV1",
+			Handler:    _OcpTenantApi_MultiCreateTenantV1_Handler,
 		},
 		{
 			MethodName: "DescribeTenantV1",

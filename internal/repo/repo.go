@@ -4,7 +4,10 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
+	"log"
+	"time"
 )
 
 type Repo interface {
@@ -23,12 +26,14 @@ const (
 type tenantRepo struct {
 	db        sqlx.DB
 	chunkSize uint
+	producer  producer.Producer
 }
 
-func New(db sqlx.DB, chunkSize uint) tenantRepo {
+func New(db sqlx.DB, chunkSize uint, producer producer.Producer) tenantRepo {
 	return tenantRepo{
 		db:        db,
 		chunkSize: chunkSize,
+		producer:  producer,
 	}
 }
 
@@ -43,6 +48,11 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 
 	if err != nil {
 		return 0, err
+	}
+
+	err = r.producer.Send(producer.Create, tenant.Id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
 	}
 
 	return tenant.Id, nil
@@ -92,6 +102,11 @@ func (r *tenantRepo) UpdateTenant(ctx context.Context, toUpdate *tenant.Tenant) 
 	}
 	if rowsAffected <= 0 {
 		return false, nil
+	}
+
+	err = r.producer.Send(producer.Update, toUpdate.Id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
 	}
 	return true, nil
 }
@@ -149,6 +164,10 @@ func (r *tenantRepo) RemoveTenant(ctx context.Context, id uint64) (bool, error) 
 	}
 	if rowsAffected <= 0 {
 		return false, nil
+	}
+	err = r.producer.Send(producer.Remove, id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
 	}
 	return true, nil
 }
