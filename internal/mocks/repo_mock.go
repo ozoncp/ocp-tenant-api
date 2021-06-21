@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,60 +35,92 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
-// AddTenants mocks base method.
-func (m *MockRepo) AddTenants(arg0 []tenant.Tenant) error {
+// AddTenant mocks base method.
+func (m *MockRepo) AddTenant(arg0 context.Context, arg1 tenant.Tenant) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddTenants", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "AddTenant", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddTenant indicates an expected call of AddTenant.
+func (mr *MockRepoMockRecorder) AddTenant(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTenant", reflect.TypeOf((*MockRepo)(nil).AddTenant), arg0, arg1)
+}
+
+// AddTenants mocks base method.
+func (m *MockRepo) AddTenants(arg0 context.Context, arg1 []tenant.Tenant) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTenants", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // AddTenants indicates an expected call of AddTenants.
-func (mr *MockRepoMockRecorder) AddTenants(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddTenants(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTenants", reflect.TypeOf((*MockRepo)(nil).AddTenants), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTenants", reflect.TypeOf((*MockRepo)(nil).AddTenants), arg0, arg1)
 }
 
 // DescribeTenant mocks base method.
-func (m *MockRepo) DescribeTenant(arg0 uint64) (*tenant.Tenant, error) {
+func (m *MockRepo) DescribeTenant(arg0 context.Context, arg1 uint64) (*tenant.Tenant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeTenant", arg0)
+	ret := m.ctrl.Call(m, "DescribeTenant", arg0, arg1)
 	ret0, _ := ret[0].(*tenant.Tenant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DescribeTenant indicates an expected call of DescribeTenant.
-func (mr *MockRepoMockRecorder) DescribeTenant(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) DescribeTenant(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTenant", reflect.TypeOf((*MockRepo)(nil).DescribeTenant), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTenant", reflect.TypeOf((*MockRepo)(nil).DescribeTenant), arg0, arg1)
 }
 
 // ListTenants mocks base method.
-func (m *MockRepo) ListTenants(arg0, arg1 uint64) ([]tenant.Tenant, error) {
+func (m *MockRepo) ListTenants(arg0 context.Context, arg1, arg2 uint64) ([]tenant.Tenant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListTenants", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListTenants", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]tenant.Tenant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListTenants indicates an expected call of ListTenants.
-func (mr *MockRepoMockRecorder) ListTenants(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) ListTenants(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTenants", reflect.TypeOf((*MockRepo)(nil).ListTenants), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTenants", reflect.TypeOf((*MockRepo)(nil).ListTenants), arg0, arg1, arg2)
 }
 
 // RemoveTenant mocks base method.
-func (m *MockRepo) RemoveTenant(arg0 uint64) error {
+func (m *MockRepo) RemoveTenant(arg0 context.Context, arg1 uint64) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveTenant", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "RemoveTenant", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RemoveTenant indicates an expected call of RemoveTenant.
-func (mr *MockRepoMockRecorder) RemoveTenant(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) RemoveTenant(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTenant", reflect.TypeOf((*MockRepo)(nil).RemoveTenant), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveTenant", reflect.TypeOf((*MockRepo)(nil).RemoveTenant), arg0, arg1)
+}
+
+// UpdateTenant mocks base method.
+func (m *MockRepo) UpdateTenant(arg0 context.Context, arg1 *tenant.Tenant) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTenant", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTenant indicates an expected call of UpdateTenant.
+func (mr *MockRepoMockRecorder) UpdateTenant(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTenant", reflect.TypeOf((*MockRepo)(nil).UpdateTenant), arg0, arg1)
 }

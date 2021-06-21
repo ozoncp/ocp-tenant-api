@@ -18,10 +18,16 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OcpTenantApiClient interface {
+	// Adds a tenant to the database, giving it a specific Id.
 	CreateTenantV1(ctx context.Context, in *CreateTenantV1Request, opts ...grpc.CallOption) (*CreateTenantV1Response, error)
+	// Provides information about the specified tenant.
 	DescribeTenantV1(ctx context.Context, in *DescribeTenantV1Request, opts ...grpc.CallOption) (*DescribeTenantV1Response, error)
-	ListTenantsV1(ctx context.Context, in *ListTenantsV1Request, opts ...grpc.CallOption) (*ListTenantsV1Response, error)
+	// Refreshes the data for the specified tenant.
+	UpdateTenantV1(ctx context.Context, in *UpdateTenantV1Request, opts ...grpc.CallOption) (*UpdateTenantV1Response, error)
+	// Deletes one tenant.
 	RemoveTenantV1(ctx context.Context, in *RemoveTenantV1Request, opts ...grpc.CallOption) (*RemoveTenantV1Response, error)
+	// Returns the specified number of notes starting at the specified indentation.
+	ListTenantsV1(ctx context.Context, in *ListTenantsV1Request, opts ...grpc.CallOption) (*ListTenantsV1Response, error)
 }
 
 type ocpTenantApiClient struct {
@@ -50,9 +56,9 @@ func (c *ocpTenantApiClient) DescribeTenantV1(ctx context.Context, in *DescribeT
 	return out, nil
 }
 
-func (c *ocpTenantApiClient) ListTenantsV1(ctx context.Context, in *ListTenantsV1Request, opts ...grpc.CallOption) (*ListTenantsV1Response, error) {
-	out := new(ListTenantsV1Response)
-	err := c.cc.Invoke(ctx, "/ocp.tenant.api.OcpTenantApi/ListTenantsV1", in, out, opts...)
+func (c *ocpTenantApiClient) UpdateTenantV1(ctx context.Context, in *UpdateTenantV1Request, opts ...grpc.CallOption) (*UpdateTenantV1Response, error) {
+	out := new(UpdateTenantV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.tenant.api.OcpTenantApi/UpdateTenantV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,14 +74,29 @@ func (c *ocpTenantApiClient) RemoveTenantV1(ctx context.Context, in *RemoveTenan
 	return out, nil
 }
 
+func (c *ocpTenantApiClient) ListTenantsV1(ctx context.Context, in *ListTenantsV1Request, opts ...grpc.CallOption) (*ListTenantsV1Response, error) {
+	out := new(ListTenantsV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.tenant.api.OcpTenantApi/ListTenantsV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OcpTenantApiServer is the server API for OcpTenantApi service.
 // All implementations must embed UnimplementedOcpTenantApiServer
 // for forward compatibility
 type OcpTenantApiServer interface {
+	// Adds a tenant to the database, giving it a specific Id.
 	CreateTenantV1(context.Context, *CreateTenantV1Request) (*CreateTenantV1Response, error)
+	// Provides information about the specified tenant.
 	DescribeTenantV1(context.Context, *DescribeTenantV1Request) (*DescribeTenantV1Response, error)
-	ListTenantsV1(context.Context, *ListTenantsV1Request) (*ListTenantsV1Response, error)
+	// Refreshes the data for the specified tenant.
+	UpdateTenantV1(context.Context, *UpdateTenantV1Request) (*UpdateTenantV1Response, error)
+	// Deletes one tenant.
 	RemoveTenantV1(context.Context, *RemoveTenantV1Request) (*RemoveTenantV1Response, error)
+	// Returns the specified number of notes starting at the specified indentation.
+	ListTenantsV1(context.Context, *ListTenantsV1Request) (*ListTenantsV1Response, error)
 	mustEmbedUnimplementedOcpTenantApiServer()
 }
 
@@ -89,11 +110,14 @@ func (UnimplementedOcpTenantApiServer) CreateTenantV1(context.Context, *CreateTe
 func (UnimplementedOcpTenantApiServer) DescribeTenantV1(context.Context, *DescribeTenantV1Request) (*DescribeTenantV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeTenantV1 not implemented")
 }
-func (UnimplementedOcpTenantApiServer) ListTenantsV1(context.Context, *ListTenantsV1Request) (*ListTenantsV1Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListTenantsV1 not implemented")
+func (UnimplementedOcpTenantApiServer) UpdateTenantV1(context.Context, *UpdateTenantV1Request) (*UpdateTenantV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTenantV1 not implemented")
 }
 func (UnimplementedOcpTenantApiServer) RemoveTenantV1(context.Context, *RemoveTenantV1Request) (*RemoveTenantV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveTenantV1 not implemented")
+}
+func (UnimplementedOcpTenantApiServer) ListTenantsV1(context.Context, *ListTenantsV1Request) (*ListTenantsV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTenantsV1 not implemented")
 }
 func (UnimplementedOcpTenantApiServer) mustEmbedUnimplementedOcpTenantApiServer() {}
 
@@ -144,20 +168,20 @@ func _OcpTenantApi_DescribeTenantV1_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OcpTenantApi_ListTenantsV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTenantsV1Request)
+func _OcpTenantApi_UpdateTenantV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTenantV1Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OcpTenantApiServer).ListTenantsV1(ctx, in)
+		return srv.(OcpTenantApiServer).UpdateTenantV1(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.tenant.api.OcpTenantApi/ListTenantsV1",
+		FullMethod: "/ocp.tenant.api.OcpTenantApi/UpdateTenantV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OcpTenantApiServer).ListTenantsV1(ctx, req.(*ListTenantsV1Request))
+		return srv.(OcpTenantApiServer).UpdateTenantV1(ctx, req.(*UpdateTenantV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -180,6 +204,24 @@ func _OcpTenantApi_RemoveTenantV1_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OcpTenantApi_ListTenantsV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTenantsV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpTenantApiServer).ListTenantsV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.tenant.api.OcpTenantApi/ListTenantsV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpTenantApiServer).ListTenantsV1(ctx, req.(*ListTenantsV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OcpTenantApi_ServiceDesc is the grpc.ServiceDesc for OcpTenantApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -196,12 +238,16 @@ var OcpTenantApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OcpTenantApi_DescribeTenantV1_Handler,
 		},
 		{
-			MethodName: "ListTenantsV1",
-			Handler:    _OcpTenantApi_ListTenantsV1_Handler,
+			MethodName: "UpdateTenantV1",
+			Handler:    _OcpTenantApi_UpdateTenantV1_Handler,
 		},
 		{
 			MethodName: "RemoveTenantV1",
 			Handler:    _OcpTenantApi_RemoveTenantV1_Handler,
+		},
+		{
+			MethodName: "ListTenantsV1",
+			Handler:    _OcpTenantApi_ListTenantsV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

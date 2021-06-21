@@ -111,15 +111,9 @@ func (m *CreateTenantV1Request) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetTenant()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateTenantV1RequestValidationError{
-				field:  "Tenant",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Name
+
+	// no validation rules for Type
 
 	return nil
 }
@@ -395,6 +389,152 @@ var _ interface {
 	ErrorName() string
 } = DescribeTenantV1ResponseValidationError{}
 
+// Validate checks the field values on UpdateTenantV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateTenantV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetTenant()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateTenantV1RequestValidationError{
+				field:  "Tenant",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateTenantV1RequestValidationError is the validation error returned by
+// UpdateTenantV1Request.Validate if the designated constraints aren't met.
+type UpdateTenantV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateTenantV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateTenantV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateTenantV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateTenantV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateTenantV1RequestValidationError) ErrorName() string {
+	return "UpdateTenantV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateTenantV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateTenantV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateTenantV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateTenantV1RequestValidationError{}
+
+// Validate checks the field values on UpdateTenantV1Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateTenantV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Updated
+
+	return nil
+}
+
+// UpdateTenantV1ResponseValidationError is the validation error returned by
+// UpdateTenantV1Response.Validate if the designated constraints aren't met.
+type UpdateTenantV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateTenantV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateTenantV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateTenantV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateTenantV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateTenantV1ResponseValidationError) ErrorName() string {
+	return "UpdateTenantV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateTenantV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateTenantV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateTenantV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateTenantV1ResponseValidationError{}
+
 // Validate checks the field values on ListTenantsV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -625,7 +765,7 @@ func (m *RemoveTenantV1Response) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Found
+	// no validation rules for Removed
 
 	return nil
 }

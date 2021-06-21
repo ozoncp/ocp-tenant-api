@@ -1,6 +1,7 @@
 package flusher_test
 
 import (
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -19,7 +20,7 @@ var _ = Describe("Flusher", func() {
 		tenants     []tenant.Tenant
 		result      []tenant.Tenant
 		f           flusher.Flusher
-		sizeOfPkg   uint
+		sizeOfPkg   uint64
 	)
 
 	BeforeEach(func() {
@@ -35,7 +36,7 @@ var _ = Describe("Flusher", func() {
 
 	JustBeforeEach(func() {
 		f = flusher.New(mockStorage, sizeOfPkg)
-		result = f.Flush(tenants)
+		result = f.Flush(context.TODO(), tenants)
 	})
 
 	AfterEach(func() {
@@ -44,7 +45,7 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo is ok", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(nil).MinTimes(2)
+			mockStorage.EXPECT().AddTenants(context.TODO(), gomock.Any()).Return(sizeOfPkg, nil).MinTimes(2)
 		})
 
 		It("repo AddTenants OK", func() {
@@ -54,7 +55,7 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo is`not ok", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(mockErr)
+			mockStorage.EXPECT().AddTenants(context.TODO(), gomock.Any()).Return(uint64(0), mockErr)
 		})
 
 		It("repo AddTenants Fail", func() {
@@ -65,8 +66,8 @@ var _ = Describe("Flusher", func() {
 
 	Context("repo runs from time to time", func() {
 		BeforeEach(func() {
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(nil).Times(1)
-			mockStorage.EXPECT().AddTenants(gomock.Any()).Return(mockErr)
+			mockStorage.EXPECT().AddTenants(context.TODO(), gomock.Any()).Return(sizeOfPkg, nil).Times(1)
+			mockStorage.EXPECT().AddTenants(context.TODO(), gomock.Any()).Return(uint64(0), mockErr)
 		})
 
 		It("repo AddTenants Ok and Fail", func() {

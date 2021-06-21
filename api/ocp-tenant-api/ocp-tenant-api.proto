@@ -7,40 +7,54 @@ option go_package = "github.com/ozoncp/ocp-tenant-api/pkg/ocp-tenant-api;ocp_ten
 
 package ocp.tenant.api;
 
-message Tenant {
-    uint64 Id = 1;
-    string Name = 2;
-    uint32 Type = 3;
-}
-
+// Service to work with tenants
 service OcpTenantApi {
+    // Adds a tenant to the database, giving it a specific Id.
     rpc CreateTenantV1(CreateTenantV1Request) returns (CreateTenantV1Response) {
         option (google.api.http) = {
             post: "/v1/tenant"
         };
     }
 
+    // Provides information about the specified tenant.
     rpc DescribeTenantV1(DescribeTenantV1Request) returns (DescribeTenantV1Response) {
         option (google.api.http) = {
             get: "/v1/tenant/{tenant_id}"
         };
     }
 
-    rpc ListTenantsV1(ListTenantsV1Request) returns (ListTenantsV1Response) {
+    // Refreshes the data for the specified tenant.
+    rpc UpdateTenantV1(UpdateTenantV1Request) returns (UpdateTenantV1Response) {
         option (google.api.http) = {
-            get: "/v1/tenant"
+            put: "/v1/tenant"
         };
     }
 
+    // Deletes one tenant.
     rpc RemoveTenantV1(RemoveTenantV1Request) returns (RemoveTenantV1Response) {
         option (google.api.http) = {
-            delete: "/v1/tenant/{tenant_id}"
+            delete: "/v1/tenant"
+        };
+    }
+
+    // Returns the specified number of notes starting at the specified indentation.
+    rpc ListTenantsV1(ListTenantsV1Request) returns (ListTenantsV1Response) {
+        option (google.api.http) = {
+            get: "/v1/tenants"
         };
     }
 }
 
+// Tenant description
+message Tenant {
+    uint64 Id = 1 [(validate.rules).uint64.gt = 0];
+    string Name = 2;
+    uint32 Type = 3;
+}
+
 message CreateTenantV1Request {
-    Tenant tenant = 1;
+    string Name = 1;
+    uint32 Type = 2;
 }
 
 message CreateTenantV1Response {
@@ -55,9 +69,17 @@ message DescribeTenantV1Response {
     Tenant tenant = 1;
 }
 
+message UpdateTenantV1Request {
+    Tenant tenant = 1;
+}
+
+message UpdateTenantV1Response {
+    bool updated = 1;
+}
+
 message ListTenantsV1Request {
-    uint64 limit = 1;
-    uint64 offset = 2;
+    uint64 limit = 1 [(validate.rules).int64.gt = 0];
+    uint64 offset = 2 [(validate.rules).int64.gt = 0];
 }
 
 message ListTenantsV1Response {
@@ -69,5 +91,5 @@ message RemoveTenantV1Request {
 }
 
 message RemoveTenantV1Response {
-    bool found = 1;
+    bool removed = 1;
 }
