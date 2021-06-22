@@ -18,6 +18,7 @@ services:
       - tenant-db
       - zookeeper
       - kafka
+      - jaeger
 
   tenant-swagger:
     image: swaggerapi/swagger-ui
@@ -62,6 +63,10 @@ services:
       - "9090:9090"
     volumes:
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
-    depends_on:
-      - tenant-api
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "127.0.0.1:6831:6831/udp"
+      - "16686:16686"
 

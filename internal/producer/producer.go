@@ -40,7 +40,7 @@ func New(ctx context.Context, addresses []string, topic string, capacity uint64)
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer_, err := sarama.NewSyncProducer(addresses, config)
+	syncProducer, err := sarama.NewSyncProducer(addresses, config)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
@@ -48,7 +48,7 @@ func New(ctx context.Context, addresses []string, topic string, capacity uint64)
 	}
 
 	newProducer := &producer{
-		dataProducer: producer_,
+		dataProducer: syncProducer,
 		topic:        topic,
 		messageChan:  make(chan *sarama.ProducerMessage, capacity),
 	}

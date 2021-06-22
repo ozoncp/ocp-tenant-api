@@ -2,12 +2,15 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 	"log"
 	"time"
+	"unsafe"
 )
 
 type Repo interface {
@@ -59,10 +62,18 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 }
 
 func (r *tenantRepo) AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error) {
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("MultiAddNotes global")
+	defer span.Finish()
+
 	var numberOfTenantsCreated uint64 = 0
 	chunks := tenant.SplitToButch(tenants, 5)
-	for _, chunk := range chunks {
-
+	for index, chunk := range chunks {
+		childSpan := tracer.StartSpan(
+			fmt.Sprintf("AddTenants for chunk %d. Size in bytes: %d", index, len(chunk)*int(unsafe.Sizeof(tenant.Tenant{}))),
+			opentracing.ChildOf(span.Context()),
+		)
+		childSpan.Finish()
 		query := sq.Insert(tableName).
 			Columns("Name", "Type").
 			RunWith(r.db).
