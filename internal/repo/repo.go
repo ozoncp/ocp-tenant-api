@@ -2,10 +2,10 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
+	tracelog "github.com/opentracing/opentracing-go/log"
 	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 	"log"
@@ -62,16 +62,18 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 }
 
 func (r *tenantRepo) AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error) {
-	tracer := opentracing.GlobalTracer()
-	span := tracer.StartSpan("AddTenants global")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "AddTenants")
 	defer span.Finish()
 
 	var numberOfTenantsCreated uint64 = 0
 	chunks := tenant.SplitToButch(tenants, 5)
 	for index, chunk := range chunks {
-		childSpan := tracer.StartSpan(
-			fmt.Sprintf("AddTenants for chunk %d. Size in bytes: %d", index, len(chunk)*int(unsafe.Sizeof(tenant.Tenant{}))),
-			opentracing.ChildOf(span.Context()),
+		childSpan, ctx := opentracing.StartSpanFromContext(ctx,
+			"AddTenants for chunk", opentracing.ChildOf(span.Context()),
+		)
+		childSpan.LogFields(
+			tracelog.Int("chunk", index),
+			tracelog.Int("size", len(chunk)*int(unsafe.Sizeof(tenant.Tenant{}))),
 		)
 		childSpan.Finish()
 		query := sq.Insert(tableName).
