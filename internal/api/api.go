@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/opentracing/opentracing-go"
 	"github.com/ozoncp/ocp-tenant-api/internal/repo"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
 	desc "github.com/ozoncp/ocp-tenant-api/pkg/ocp-tenant-api"
@@ -26,6 +27,8 @@ func NewOcpTenantApi(repo repo.Repo) desc.OcpTenantApiServer {
 }
 
 func (a *api) CreateTenantV1(ctx context.Context, req *desc.CreateTenantV1Request) (*desc.CreateTenantV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "CreateTenantV1")
+	defer span.Finish()
 	log.Printf("Create tenant ...")
 
 	if err := req.Validate(); err != nil {
@@ -51,6 +54,8 @@ func (a *api) CreateTenantV1(ctx context.Context, req *desc.CreateTenantV1Reques
 }
 
 func (a *api) MultiCreateTenantV1(ctx context.Context, req *desc.MultiCreateTenantV1Request) (*desc.MultiCreateTenantV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "MultiCreateTenantV1")
+	defer span.Finish()
 	log.Printf("MultiCreate tenants ...")
 
 	if err := req.Validate(); err != nil {
@@ -84,6 +89,9 @@ func (a *api) DescribeTenantV1(
 	ctx context.Context,
 	req *desc.DescribeTenantV1Request,
 ) (*desc.DescribeTenantV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "DescribeTenantV1")
+	span.SetTag("id", req.TenantId)
+	defer span.Finish()
 
 	if err := req.Validate(); err != nil {
 		log.Println("invalid argument")
@@ -103,6 +111,9 @@ func (a *api) DescribeTenantV1(
 }
 
 func (a *api) RemoveTenantV1(ctx context.Context, request *desc.RemoveTenantV1Request) (*desc.RemoveTenantV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "RemoveTenantV1")
+	span.SetTag("id", request.TenantId)
+	defer span.Finish()
 	log.Printf("Remove tenant (id: %d) ...", request.TenantId)
 
 	if err := request.Validate(); err != nil {
@@ -125,6 +136,10 @@ func (a *api) RemoveTenantV1(ctx context.Context, request *desc.RemoveTenantV1Re
 }
 
 func (a *api) UpdateTenantV1(ctx context.Context, request *desc.UpdateTenantV1Request) (*desc.UpdateTenantV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "CallbackFirstV1")
+	span.SetTag("id", request.Tenant.Id)
+	defer span.Finish()
+
 	log.Printf("Update tenant (id: %d) ...", request.Tenant.Id)
 
 	if err := request.Validate(); err != nil {
@@ -154,6 +169,8 @@ func (a *api) UpdateTenantV1(ctx context.Context, request *desc.UpdateTenantV1Re
 }
 
 func (a *api) ListTenantsV1(ctx context.Context, request *desc.ListTenantsV1Request) (*desc.ListTenantsV1Response, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "ListTenantsV1")
+	defer span.Finish()
 	log.Printf("List tenants ...")
 
 	if err := request.Validate(); err != nil {

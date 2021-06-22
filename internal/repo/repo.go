@@ -63,7 +63,7 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 
 func (r *tenantRepo) AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error) {
 	tracer := opentracing.GlobalTracer()
-	span := tracer.StartSpan("MultiAddNotes global")
+	span := tracer.StartSpan("AddTenants global")
 	defer span.Finish()
 
 	var numberOfTenantsCreated uint64 = 0
