@@ -4,8 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
+	"github.com/ozoncp/ocp-tenant-api/internal/metrics"
+	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/repo"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/uber/jaeger-client-go"
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jaegerlog "github.com/uber/jaeger-client-go/log"
+	jmetric "github.com/uber/jaeger-lib/metrics"
 	"log"
 	"net"
 	"net/http"
@@ -21,8 +31,9 @@ import (
 )
 
 const (
-	grpcPort = ":7002"
-	httpPort = ":7000"
+	grpcPort           = ":7002"
+	grpcServerEndpoint = "localhost:7002"
+	httpPort           = ":7000"
 )
 
 var (
@@ -66,6 +77,7 @@ func runHttp() error {
 }
 
 func runGrpc() error {
+	ctx := context.Background()
 	listen, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -86,8 +98,14 @@ func runGrpc() error {
 		log.Fatalf("failed to ping to database")
 		return err
 	}
+	addresses := []string{"127.0.0.1:9094"}
+	dataProducer, err := producer.New(ctx, addresses, "tenant", 512)
 
-	repo := repo.New(*db, 5)
+	if err != nil {
+		log.Println("failed to create a producer")
+		return err
+	}
+	repo := repo.New(*db, 5, dataProducer)
 
 	s := grpc.NewServer()
 	desc.RegisterOcpTenantApiServer(s, api.NewOcpTenantApi(&repo))
@@ -100,9 +118,100 @@ func runGrpc() error {
 	return nil
 }
 
-func main() {
-	flag.Parse()
+func runJSON() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{
+		grpc.WithUnaryInterceptor(
+			grpc_opentracing.UnaryClientInterceptor(
+				grpc_opentracing.WithTracer(opentracing.GlobalTracer()),
+			),
+		),
+		grpc.WithInsecure(),
+	}
+
+	err := desc.RegisterOcpTenantApiHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
+	if err != nil {
+		panic(err)
+	}
+
+	err = http.ListenAndServe(":8081", tracingWrapper(mux))
+	if err != nil {
+		panic(err)
+	}
+}
+
+var grpcGatewayTag = opentracing.Tag{Key: string(ext.Component), Value: "grpc-gateway"}
+
+func tracingWrapper(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		parentSpanContext, err := opentracing.GlobalTracer().Extract(
+			opentracing.HTTPHeaders,
+			opentracing.HTTPHeadersCarrier(r.Header))
+		if err == nil || err == opentracing.ErrSpanContextNotFound {
+			serverSpan := opentracing.GlobalTracer().StartSpan(
+				"ServeHTTP",
+				// this is magical, it attaches the new span to the parent parentSpanContext, and creates an unparented one if empty.
+				ext.RPCServerOption(parentSpanContext),
+				grpcGatewayTag,
+			)
+			r = r.WithContext(opentracing.ContextWithSpan(r.Context(), serverSpan))
+			defer serverSpan.Finish()
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
+func runMetrics() {
+	metrics.RegisterMetrics()
+	http.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func InitTracing() {
+	// Sample configuration for testing. Use constant sampling to sample every trace
+	// and enable LogSpan to log every span via configured Logger.
+	cfg := jaegercfg.Configuration{
+		ServiceName: "your_service_name",
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  jaeger.SamplerTypeConst,
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans: true,
+		},
+	}
+
+	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
+	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
+	// frameworks.
+	jLogger := jaegerlog.StdLogger
+	jMetricsFactory := jmetric.NullFactory
+
+	// Initialize tracer with a logger and a metrics factory
+	tracer, _, err := cfg.NewTracer(
+		jaegercfg.Logger(jLogger),
+		jaegercfg.Metrics(jMetricsFactory),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+	// Set the singleton opentracing.Tracer with the Jaeger tracer.
+	opentracing.SetGlobalTracer(tracer)
+}
+
+func main() {
+	InitTracing()
+	go runMetrics()
+	go runJSON()
 	if err := runGrpc(); err != nil {
 		log.Fatal(err)
 		return

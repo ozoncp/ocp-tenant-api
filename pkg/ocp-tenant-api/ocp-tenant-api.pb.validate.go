@@ -243,6 +243,158 @@ var _ interface {
 	ErrorName() string
 } = CreateTenantV1ResponseValidationError{}
 
+// Validate checks the field values on MultiCreateTenantV1Request with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateTenantV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetCreate() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MultiCreateTenantV1RequestValidationError{
+					field:  fmt.Sprintf("Create[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MultiCreateTenantV1RequestValidationError is the validation error returned
+// by MultiCreateTenantV1Request.Validate if the designated constraints aren't met.
+type MultiCreateTenantV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateTenantV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateTenantV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateTenantV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateTenantV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateTenantV1RequestValidationError) ErrorName() string {
+	return "MultiCreateTenantV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateTenantV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateTenantV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateTenantV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateTenantV1RequestValidationError{}
+
+// Validate checks the field values on MultiCreateTenantV1Response with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateTenantV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for SuccessCount
+
+	return nil
+}
+
+// MultiCreateTenantV1ResponseValidationError is the validation error returned
+// by MultiCreateTenantV1Response.Validate if the designated constraints
+// aren't met.
+type MultiCreateTenantV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateTenantV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateTenantV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateTenantV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateTenantV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateTenantV1ResponseValidationError) ErrorName() string {
+	return "MultiCreateTenantV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateTenantV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateTenantV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateTenantV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateTenantV1ResponseValidationError{}
+
 // Validate checks the field values on DescribeTenantV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.

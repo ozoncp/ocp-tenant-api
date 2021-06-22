@@ -12,7 +12,16 @@ service OcpTenantApi {
     // Adds a tenant to the database, giving it a specific Id.
     rpc CreateTenantV1(CreateTenantV1Request) returns (CreateTenantV1Response) {
         option (google.api.http) = {
-            post: "/v1/tenant"
+            post: "/v1/tenant",
+            body: "*"
+        };
+    }
+
+    // Adds a tenants to the database, giving it a specific Id.
+    rpc MultiCreateTenantV1(MultiCreateTenantV1Request) returns (MultiCreateTenantV1Response) {
+        option (google.api.http) = {
+            post: "/v1/tenants",
+            body: "*"
         };
     }
 
@@ -26,7 +35,8 @@ service OcpTenantApi {
     // Refreshes the data for the specified tenant.
     rpc UpdateTenantV1(UpdateTenantV1Request) returns (UpdateTenantV1Response) {
         option (google.api.http) = {
-            put: "/v1/tenant"
+            put: "/v1/tenant",
+            body: "*"
         };
     }
 
@@ -59,6 +69,14 @@ message CreateTenantV1Request {
 
 message CreateTenantV1Response {
     uint64 tenant_id = 1;
+}
+
+message MultiCreateTenantV1Request {
+    repeated CreateTenantV1Request create = 1;
+}
+
+message MultiCreateTenantV1Response {
+    uint64 success_count = 1;
 }
 
 message DescribeTenantV1Request {

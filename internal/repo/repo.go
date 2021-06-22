@@ -4,7 +4,13 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
+	tracelog "github.com/opentracing/opentracing-go/log"
+	"github.com/ozoncp/ocp-tenant-api/internal/producer"
 	"github.com/ozoncp/ocp-tenant-api/internal/tenant"
+	"log"
+	"time"
+	"unsafe"
 )
 
 type Repo interface {
@@ -23,12 +29,14 @@ const (
 type tenantRepo struct {
 	db        sqlx.DB
 	chunkSize uint
+	producer  producer.Producer
 }
 
-func New(db sqlx.DB, chunkSize uint) tenantRepo {
+func New(db sqlx.DB, chunkSize uint, producer producer.Producer) tenantRepo {
 	return tenantRepo{
 		db:        db,
 		chunkSize: chunkSize,
+		producer:  producer,
 	}
 }
 
@@ -45,14 +53,29 @@ func (r *tenantRepo) AddTenant(ctx context.Context, tenant tenant.Tenant) (uint6
 		return 0, err
 	}
 
+	err = r.producer.Send(producer.Create, tenant.Id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
+	}
+
 	return tenant.Id, nil
 }
 
 func (r *tenantRepo) AddTenants(ctx context.Context, tenants []tenant.Tenant) (uint64, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "AddTenants")
+	defer span.Finish()
+
 	var numberOfTenantsCreated uint64 = 0
 	chunks := tenant.SplitToButch(tenants, 5)
-	for _, chunk := range chunks {
-
+	for index, chunk := range chunks {
+		childSpan, ctx := opentracing.StartSpanFromContext(ctx,
+			"AddTenants for chunk", opentracing.ChildOf(span.Context()),
+		)
+		childSpan.LogFields(
+			tracelog.Int("chunk", index),
+			tracelog.Int("size", len(chunk)*int(unsafe.Sizeof(tenant.Tenant{}))),
+		)
+		childSpan.Finish()
 		query := sq.Insert(tableName).
 			Columns("Name", "Type").
 			RunWith(r.db).
@@ -92,6 +115,11 @@ func (r *tenantRepo) UpdateTenant(ctx context.Context, toUpdate *tenant.Tenant) 
 	}
 	if rowsAffected <= 0 {
 		return false, nil
+	}
+
+	err = r.producer.Send(producer.Update, toUpdate.Id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
 	}
 	return true, nil
 }
@@ -149,6 +177,10 @@ func (r *tenantRepo) RemoveTenant(ctx context.Context, id uint64) (bool, error) 
 	}
 	if rowsAffected <= 0 {
 		return false, nil
+	}
+	err = r.producer.Send(producer.Remove, id, time.Now())
+	if err != nil {
+		log.Printf("failed to send message about updating a note to kafka: %v", err)
 	}
 	return true, nil
 }
